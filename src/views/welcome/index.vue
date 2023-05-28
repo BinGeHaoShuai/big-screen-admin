@@ -16,19 +16,14 @@ onMounted(() => {
 
   // axios.get("/api/data/asset/geo/HK.json").then((geoJson: any) => {
   axios.get("/datav/areas_v3/bound/500000_full.json").then((geoJson: any) => {
-    console.log(geoJson);
-
     myChart.hideLoading();
 
-    echarts.registerMap("HK", geoJson.data);
+    echarts.registerMap("CQ", geoJson.data);
 
     myChart.setOption(
       (option = {
         title: {
-          text: "重庆市 （2023）",
-          subtext: "Data from Web",
-          sublink:
-            "http://zh.wikipedia.org/wiki/%E9%A6%99%E6%B8%AF%E8%A1%8C%E6%94%BF%E5%8D%80%E5%8A%83#cite_note-12"
+          text: "重庆市人口密度（2023）"
         },
         tooltip: {
           trigger: "item",
@@ -57,31 +52,51 @@ onMounted(() => {
         },
         series: [
           {
-            name: "香港18区人口密度",
+            name: "重庆市人口密度",
             type: "map",
-            map: "HK",
+            map: "CQ",
             label: {
               show: true
             },
             data: [
-              { name: "渝北区", value: 20057.34 },
-              { name: "湾仔", value: 15477.48 },
-              { name: "东区", value: 31686.1 },
-              { name: "南区", value: 6992.6 },
-              { name: "油尖旺", value: 44045.49 },
-              { name: "深水埗", value: 40689.64 },
+              { name: "万州区", value: 20057.34 },
+              { name: "云阳县", value: 15477.48 },
+              { name: "渝北区", value: 31686.1 },
+              { name: "渝中区", value: 6992.6 },
+              { name: "巴南区", value: 44045.49 },
+              { name: "涪陵区", value: 40689.64 },
               { name: "九龙城", value: 37659.78 },
-              { name: "黄大仙", value: 45180.97 },
-              { name: "观塘", value: 55204.26 },
-              { name: "葵青", value: 21900.9 },
-              { name: "荃湾", value: 4918.26 },
-              { name: "屯门", value: 5881.84 },
-              { name: "元朗", value: 4178.01 },
-              { name: "北区", value: 2227.92 },
-              { name: "大埔", value: 2180.98 },
-              { name: "沙田", value: 9172.94 },
-              { name: "西贡", value: 3368 },
-              { name: "离岛", value: 806.98 }
+              { name: "丰都县", value: 45180.97 },
+              { name: "大足区", value: 55204.26 },
+              { name: "江津区", value: 21900.9 },
+              { name: "忠县", value: 4918.26 },
+              { name: "合川区", value: 5881.84 },
+              { name: "铜梁区", value: 4178.01 },
+              { name: "南川区", value: 2227.92 },
+              { name: "垫江县", value: 2180.98 },
+              { name: "奉节县", value: 9172.94 },
+              { name: "巫溪县", value: 3368 },
+              { name: "开州区", value: 806.98 },
+              { name: "梁平区", value: 806.98 },
+              { name: "城口县", value: 806.98 },
+              { name: "巫山县", value: 1000 },
+              { name: "黔江区", value: 8000 },
+              { name: "长寿区", value: 4000 },
+              { name: "武隆区", value: 6000 },
+              { name: "永川区", value: 7000 },
+              { name: "荣昌区", value: 10000 },
+              { name: "潼南区", value: 13000 },
+              { name: "綦江区", value: 5000 },
+              { name: "璧山区", value: 1500 },
+              { name: "九龙坡区", value: 10000 },
+              { name: "沙坪坝区", value: 10000 },
+              { name: "江北区", value: 20000 },
+              { name: "北碚区", value: 15000 },
+              { name: "南岸区", value: 20000 },
+              { name: "酉阳土家族苗族自治县", value: 1200 },
+              { name: "秀山土家族苗族自治县", value: 600 },
+              { name: "石柱土家族自治县", value: 500 },
+              { name: "彭水苗族土家族自治县", value: 2100 }
             ],
             // 自定义名称映射
             nameMap: {}

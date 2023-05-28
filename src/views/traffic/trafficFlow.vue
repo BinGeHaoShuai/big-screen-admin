@@ -2,7 +2,7 @@
   <div>
     <!-- 交通流量：显示各地段的交通拥堵情况，包括车流量、车速、拥堵长度等 -->
     <div class="add-button">
-      <el-button type="primary" @click="handleAdd()">手动添加</el-button>
+      <el-button type="primary" @click="shiftShowAdd()">手动添加</el-button>
       <el-button color="#626aef" plain @click="handleAddByExcel()"
         >excel文件上传</el-button
       >
@@ -36,15 +36,27 @@
       </el-table-column>
     </el-table>
 
-    <add-form :isShow="isShow" @hiden="handleAdd" />
+    <add-traffic-flow
+      :isShow="isShow"
+      @hiden="shiftShowAdd"
+      @addData="addData"
+    />
+    <edit-traffic-flow
+      :editData="editData"
+      :isShow="isShowEdit"
+      @hiden="shiftShowEdit"
+      @changeData="changeData"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import addForm from "./components/addForm.vue";
+import { computed, ref, reactive } from "vue";
+import addTrafficFlow from "./components/addTrafficFlow.vue";
+import editTrafficFlow from "./components/editTrafficFlow.vue";
 
 interface Traffic {
+  id: number;
   county: string;
   town: string;
   cars: number;
@@ -53,6 +65,43 @@ interface Traffic {
 }
 
 const search = ref("");
+
+const editData = reactive({
+  id: 0,
+  county: "",
+  town: "",
+  cars: 0,
+  jam: "",
+  accident: 0
+});
+
+//是否显示添加表格
+const isShow = ref<boolean>(false);
+const isShowEdit = ref<boolean>(false);
+
+const shiftShowAdd = () => {
+  isShow.value = !isShow.value;
+};
+const shiftShowEdit = () => {
+  isShowEdit.value = !isShowEdit.value;
+};
+
+const handleAddByExcel = () => {
+  alert("excel上传");
+};
+
+const handleEdit = (index: number, user: User) => {
+  // console.log(index, user);
+  editData.id = user.id;
+  editData.county = user.county;
+  editData.town = user.town;
+  editData.cars = user.cars;
+  editData.jam = user.jam;
+  editData.accident = user.accident;
+  shiftShowEdit();
+};
+
+//按条件查找
 const filterTableData = computed(() =>
   tableData.filter(
     data =>
@@ -60,31 +109,52 @@ const filterTableData = computed(() =>
       data.county.toLowerCase().includes(search.value.toLowerCase())
   )
 );
-//是否显示添加人员表格
-const isShow = ref<boolean>(false);
-const handleAdd = () => {
-  isShow.value = !isShow.value;
+
+//添加表单数据
+const addData = data => {
+  console.log(data, 123);
+  data.id = tableData.length + 1;
+  tableData.push(data);
 };
-const handleAddByExcel = () => {
-  alert("excel上传");
+//修改表单数据
+const changeData = data => {
+  tableData.map((item, index) => {
+    if (item.id === data.id) {
+      tableData[index].county = data.county;
+      tableData[index].town = data.town;
+      tableData[index].cars = data.cars;
+      tableData[index].jam = data.jam;
+      tableData[index].accident = data.accident;
+    }
+  });
+};
+//删除数据
+const handleDelete = (index: number, row: User) => {
+  tableData.map((item, index) => {
+    if (item.id === row.id) {
+      tableData.splice(index, 1);
+    }
+  });
 };
 
-const handleEdit = (index: number, row: Traffic) => {
-  console.log(index, row);
-};
-const handleDelete = (index: number, row: Traffic) => {
-  console.log(index, row);
-};
-
-const tableData: Traffic[] = [
+const tableData: Traffic[] = reactive([
   {
+    id: 0,
     county: "渝北区",
     town: "龙兴古镇",
     cars: 10000,
     jam: "良好",
     accident: 0
+  },
+  {
+    id: 1,
+    county: "江北区",
+    town: "江北镇",
+    cars: 20000,
+    jam: "良好",
+    accident: 1
   }
-];
+]);
 
 defineOptions({
   name: "TrafficFlow"

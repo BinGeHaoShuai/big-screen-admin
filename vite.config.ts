@@ -53,6 +53,11 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
           target: "https://geo.datav.aliyun.com",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/datav/, "") // 不可以省略rewrite
+        },
+        "/getIP": {
+          target: "https://api.vore.top",
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/getip/, "") // 不可以省略rewrite
         }
       }
     },

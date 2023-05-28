@@ -6,29 +6,25 @@
       :model="formLabelAlign"
       style="max-width: 460px"
     >
-      <el-form-item label="User Name">
+      <el-form-item label="区县">
+        <el-input placeholder="区县名称" v-model="formLabelAlign.county" />
+      </el-form-item>
+      <el-form-item label="城镇">
+        <el-input placeholder="城镇名称" v-model="formLabelAlign.town" />
+      </el-form-item>
+      <el-form-item label="经度">
         <el-input
-          placeholder="Please input user name"
-          v-model="formLabelAlign.name"
+          placeholder="摄像头的经度"
+          v-model="formLabelAlign.longitude"
         />
       </el-form-item>
-      <el-form-item label="Password">
+      <el-form-item label="纬度">
         <el-input
-          type="password"
-          placeholder="Please input password"
-          show-password
-          v-model="formLabelAlign.password"
+          placeholder="摄像头的纬度"
+          v-model="formLabelAlign.latitude"
         />
       </el-form-item>
-      <el-form-item label="Confirm Pwd">
-        <el-input
-          type="password"
-          placeholder="Please input password again"
-          show-password
-          v-model="formLabelAlign.confirmPwd"
-        />
-      </el-form-item>
-      <el-form-item label="User Rank">
+      <el-form-item label="状态">
         <el-select v-model="value" placeholder="请选择">
           <el-option
             v-for="item in options"
@@ -42,59 +38,61 @@
     </el-form>
     <div class="bottom">
       <el-button @click="handleCancel()">取消</el-button>
-      <el-button type="primary" @click="handleAdd">确认</el-button>
+      <el-button type="primary" @click="changeData">确认</el-button>
     </div>
   </div>
   <div class="mask" v-if="props.isShow" />
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 
 const props = defineProps({
   isShow: {
     type: Boolean,
     default: false
-  }
+  },
+  editData: Object
 });
+const emit = defineEmits(["hiden", "changeData"]);
 
-const emit = defineEmits(["hiden", "add"]);
+const formLabelAlign = computed(() => {
+  return reactive({
+    id: props.editData.id,
+    county: props.editData.county,
+    town: props.editData.town,
+    longitude: props.editData.longitude,
+    latitude: props.editData.latitude,
+    state: ""
+  });
+});
 
 const value = ref("");
 const options = [
   {
     value: "1",
-    label: "超级管理员",
-    disabled: true
+    label: "正常"
   },
   {
     value: "2",
-    label: "普通管理员"
+    label: "故障"
   }
 ];
-
-const formLabelAlign = reactive({
-  name: "",
-  password: "",
-  confirmPwd: "",
-  rank: "普通管理员"
-});
-
-const handleCancel = () => {
+const changeData = () => {
+  const data = {
+    id: formLabelAlign.value.id,
+    county: formLabelAlign.value.county,
+    town: formLabelAlign.value.town,
+    longitude: formLabelAlign.value.longitude,
+    latitude: formLabelAlign.value.latitude,
+    state: value.value == 1 ? "正常" : "故障"
+  };
+  emit("changeData", data);
   emit("hiden", "");
 };
 
-const handleAdd = () => {
-  const data = {
-    rank: formLabelAlign.rank,
-    name: formLabelAlign.name,
-    pwd: formLabelAlign.password
-  };
-  emit("add", data);
+const handleCancel = () => {
   emit("hiden", "");
-  formLabelAlign.name = "";
-  formLabelAlign.password = "";
-  formLabelAlign.confirmPwd = "";
 };
 </script>
 

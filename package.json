@@ -129,7 +129,7 @@
       "stable": "*"
     }
   },
-  "repository": "git@github.com:pure-admin/pure-admin-thin.git",
-  "author": "xiaoxian521",
+  "repository": "",
+  "author": "TangBin",
   "license": "MIT"
 }

@@ -2,7 +2,7 @@
   <div>
     <!-- 道路监控 -->
     <div class="add-button">
-      <el-button type="primary" @click="handleAdd()">手动添加</el-button>
+      <el-button type="primary" @click="shiftShowEdit()">手动添加</el-button>
       <el-button color="#626aef" plain @click="handleAddByExcel()"
         >excel文件上传</el-button
       >
@@ -25,7 +25,6 @@
         </template>
         <template #default="scope">
           <div style="display: flex">
-            <el-button size="small" type="primary">查看</el-button>
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
               >编辑</el-button
             >
@@ -40,21 +39,50 @@
       </el-table-column>
     </el-table>
 
-    <add-form :isShow="isShow" @hiden="handleAdd" />
+    <add-monitor :isShow="isShow" @hiden="shiftShowAdd" @addData="addData" />
+    <edit-monitor
+      :editData="editData"
+      :isShow="isShowEdit"
+      @hiden="shiftShowEdit"
+      @changeData="changeData"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import addForm from "./components/addForm.vue";
+import { computed, reactive, ref } from "vue";
+import addMonitor from "./components/addMonitor.vue";
+import editMonitor from "./components/editMonitor.vue";
 
 interface User {
-  date: string;
-  name: string;
-  address: string;
+  id: number;
+  county: string;
+  town: string;
+  longitude: string;
+  latitude: string;
+  state: string;
 }
 
 const search = ref("");
+
+const editData = reactive({
+  id: 0,
+  county: "",
+  town: "",
+  longitude: "",
+  latitude: ""
+});
+
+const handleEdit = (index: number, user: User) => {
+  // console.log(index, user);
+  editData.id = user.id;
+  editData.county = user.county;
+  editData.town = user.town;
+  editData.longitude = user.longitude;
+  editData.latitude = user.latitude;
+  shiftShowEdit();
+};
+
 const filterTableData = computed(() =>
   tableData.filter(
     data =>
@@ -62,23 +90,47 @@ const filterTableData = computed(() =>
       data.county.toLowerCase().includes(search.value.toLowerCase())
   )
 );
-//是否显示添加人员表格
+
+//是否显示添加表格
 const isShow = ref<boolean>(false);
-const handleAdd = () => {
+const isShowEdit = ref<boolean>(false);
+
+const shiftShowAdd = () => {
   isShow.value = !isShow.value;
 };
+const shiftShowEdit = () => {
+  isShowEdit.value = !isShowEdit.value;
+};
+
 const handleAddByExcel = () => {
   alert("excel上传");
 };
 
-const handleEdit = (index: number, row: User) => {
-  console.log(index, row);
+//添加表单数据
+const addData = data => {
+  data.id = tableData.length + 1;
+  tableData.push(data);
 };
-const handleDelete = (index: number, row: User) => {
-  console.log(index, row);
+const changeData = data => {
+  tableData.map((item, index) => {
+    if (item.id === data.id) {
+      tableData[index].county = data.county;
+      tableData[index].town = data.town;
+      tableData[index].longitude = data.longitude;
+      tableData[index].latitude = data.latitude;
+    }
+  });
 };
 
-const tableData: User[] = [
+const handleDelete = (index: number, row: User) => {
+  tableData.map((item, index) => {
+    if (item.id === row.id) {
+      tableData.splice(index, 1);
+    }
+  });
+};
+
+const tableData: User[] = reactive([
   {
     id: 1,
     county: "渝北区",
@@ -95,7 +147,7 @@ const tableData: User[] = [
     latitude: "26.31",
     state: "故障"
   }
-];
+]);
 defineOptions({
   name: "Monitor"
 });

@@ -2,7 +2,7 @@
   <div>
     <!-- 权限管理页面 -->
     <div class="add-button">
-      <el-button type="primary" @click="handleAdd()">添加</el-button>
+      <el-button type="primary" @click="shiftShow()">添加</el-button>
     </div>
     <el-table :data="filterTableData" style="width: 100%">
       <el-table-column label="角色" prop="rank" />
@@ -29,25 +29,56 @@
       </el-table-column>
     </el-table>
 
-    <add-form :isShow="isShow" @hiden="handleAdd" />
+    <add-form :isShow="isShow" @hiden="shiftShow" @add="addData" />
+    <edit-form
+      :editData="editData"
+      :isShow="isShowEdit"
+      @hiden="shiftShowEdit"
+      @editConfirm="editConfirm"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import addForm from "./components/addForm.vue";
+import editForm from "./components/editForm.vue";
 
 defineOptions({
   name: "Authority"
 });
 
 interface User {
-  date: string;
+  rank: number;
   name: string;
-  address: string;
+  pwd: string;
 }
 
 const search = ref("");
+const editData = reactive({ rank: "普通管理员", name: "", pwd: "" });
+
+const tableData: User[] = reactive([
+  {
+    rank: "超级管理员",
+    name: "admin",
+    pwd: "123456"
+  },
+  {
+    rank: "普通管理员",
+    name: "John",
+    pwd: "123456"
+  },
+  {
+    rank: "普通管理员",
+    name: "Morgan",
+    pwd: "123456"
+  },
+  {
+    rank: "普通管理员",
+    name: "Jessy",
+    pwd: "123456"
+  }
+]);
 const filterTableData = computed(() =>
   tableData.filter(
     data =>
@@ -57,38 +88,47 @@ const filterTableData = computed(() =>
 );
 //是否显示添加人员表格
 const isShow = ref<boolean>(false);
-const handleAdd = () => {
+const isShowEdit = ref<boolean>(false);
+//切换显示
+const shiftShow = () => {
   isShow.value = !isShow.value;
 };
-const handleEdit = (index: number, row: User) => {
-  console.log(index, row);
+const shiftShowEdit = () => {
+  isShowEdit.value = !isShowEdit.value;
 };
-const handleDelete = (index: number, row: User) => {
-  console.log(index, row);
+//添加表单数据
+const addData = data => {
+  tableData.push(data);
 };
 
-const tableData: User[] = [
-  {
-    rank: "超级管理员",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles"
-  },
-  {
-    rank: "普通管理员",
-    name: "John",
-    address: "No. 189, Grove St, Los Angeles"
-  },
-  {
-    rank: "普通管理员",
-    name: "Morgan",
-    address: "No. 189, Grove St, Los Angeles"
-  },
-  {
-    rank: "普通管理员",
-    name: "Jessy",
-    address: "No. 189, Grove St, Los Angeles"
-  }
-];
+/**
+ * 编辑user信息
+ * @param index 编辑对象下标
+ * @param user 被编辑用户
+ */
+const handleEdit = (index: number, user: User) => {
+  // console.log(index, user);
+  editData.name = user.name;
+  editData.pwd = user.pwd;
+  shiftShowEdit();
+};
+
+const editConfirm = (user: User) => {
+  tableData.map((item, index) => {
+    if (item.name === user.name) {
+      tableData[index].pwd = user.pwd;
+    }
+  });
+};
+
+const handleDelete = (index: number, row: User) => {
+  // console.log(index, row);
+  tableData.map((item, index) => {
+    if (item.name === row.name) {
+      tableData.splice(index, 1);
+    }
+  });
+};
 </script>
 
 <style scoped>

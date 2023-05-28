@@ -2,10 +2,7 @@
   <div>
     <!-- 城市经济政策情况:如财政政策、货币政策、税收政策等。 -->
     <div class="add-button">
-      <el-button type="primary" @click="handleAdd()">手动添加</el-button>
-      <el-button color="#626aef" plain @click="handleAddByExcel()"
-        >文件上传</el-button
-      >
+      <el-button type="primary" @click="handleAdd()">编辑上传</el-button>
     </div>
 
     <el-table :data="filterTableData" style="width: 100%" table-layout="auto">
@@ -21,13 +18,13 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-    <add-form :isShow="isShow" @hiden="handleAdd" />
+    <!-- <add-form :isShow="isShow" @hiden="handleAdd" /> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import addForm from "./components/addForm.vue";
+// import addForm from "./components/addForm.vue";
 
 interface Policy {
   time: string;
@@ -57,9 +54,6 @@ const filterTableData = computed(() =>
 const isShow = ref<boolean>(false);
 const handleAdd = () => {
   isShow.value = !isShow.value;
-};
-const handleAddByExcel = () => {
-  alert("excel上传");
 };
 
 const tableData: Policy[] = [

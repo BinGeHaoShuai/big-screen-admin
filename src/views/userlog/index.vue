@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, reactive, onMounted } from "vue";
 
 interface User {
   date: string;
@@ -31,6 +31,74 @@ const tableData: User[] = [
     ip: "103.168.155.31"
   }
 ];
+
+const state = reactive({
+  ip: ""
+});
+onMounted(() => {
+  //获取ip
+  getUserIP(ip => {
+    state.ip = ip;
+    console.log(ip);
+    console.log(state.ip);
+  });
+  fetch("https://api.ipify.org?format=json")
+    .then(response => response.json())
+    .then(data => {
+      const ip = data.ip;
+      console.log(ip);
+      //通过ip地址获取所在地
+      fetch(`getIP/api/IPdata?ip=${ip}`).then(res =>
+        res.json().then(data => {
+          console.log(data);
+        })
+      );
+    })
+    .catch(error => {
+      console.error(error);
+    });
+});
+//获取用户本地ip的方法
+const getUserIP = onNewIP => {
+  const MyPeerConnection =
+    window.RTCPeerConnection ||
+    window.mozRTCPeerConnection ||
+    window.webkitRTCPeerConnection;
+  const pc = new MyPeerConnection({
+    iceServers: []
+  });
+  const noop = () => {};
+  const localIPs = {};
+  const ipRegex =
+    /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g;
+  const iterateIP = ip => {
+    if (!localIPs[ip]) onNewIP(ip);
+    localIPs[ip] = true;
+  };
+  pc.createDataChannel("");
+  pc.createOffer()
+    .then(sdp => {
+      sdp.sdp.split("\n").forEach(function (line) {
+        if (line.indexOf("candidate") < 0) return;
+        line.match(ipRegex).forEach(iterateIP);
+      });
+      pc.setLocalDescription(sdp, noop, noop);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  pc.onicecandidate = ice => {
+    if (
+      !ice ||
+      !ice.candidate ||
+      !ice.candidate.candidate ||
+      !ice.candidate.candidate.match(ipRegex)
+    )
+      return;
+    ice.candidate.candidate.match(ipRegex).forEach(iterateIP);
+  };
+};
+
 defineOptions({
   name: "UserLog"
 });
@@ -46,5 +114,3 @@ defineOptions({
     </el-table>
   </div>
 </template>
-
-<style scoped></style>

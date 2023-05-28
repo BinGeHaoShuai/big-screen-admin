@@ -2,7 +2,7 @@
   <div>
     <!-- 环境数据:包括空气质量、水质量、噪声、温度、湿度等。 -->
     <div class="add-button">
-      <el-button type="primary" @click="handleAdd()">手动添加</el-button>
+      <el-button type="primary" @click="shiftShowAdd()">手动添加</el-button>
       <el-button color="#626aef" plain @click="handleAddByExcel()"
         >excel文件上传</el-button
       >
@@ -37,15 +37,23 @@
       </el-table-column>
     </el-table>
 
-    <add-form :isShow="isShow" @hiden="handleAdd" />
+    <add-env :isShow="isShow" @hiden="shiftShowAdd" @addData="addData" />
+    <edit-env
+      :editData="editData"
+      :isShow="isShowEdit"
+      @hiden="shiftShowEdit"
+      @changeData="changeData"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import addForm from "./components/addForm.vue";
+import { computed, reactive, ref } from "vue";
+import addEnv from "./components/addEnv.vue";
+import editEnv from "./components/editEnv.vue";
 
 interface Evn {
+  id: number;
   address: string;
   temp: number;
   humidity: number;
@@ -62,24 +70,73 @@ const filterTableData = computed(() =>
       data.address.toLowerCase().includes(search.value.toLowerCase())
   )
 );
-//是否显示添加人员表格
+
+const editData = reactive({
+  id: 0,
+  address: "",
+  temp: 0,
+  humidity: 0,
+  rainfall: 0,
+  air: "",
+  water: ""
+});
+
+//是否显示添加表格
 const isShow = ref<boolean>(false);
-const handleAdd = () => {
+const isShowEdit = ref<boolean>(false);
+
+const handleEdit = (index: number, data: User) => {
+  // console.log(index, user);
+  editData.id = data.id;
+  editData.address = data.address;
+  editData.temp = data.temp;
+  editData.humidity = data.humidity;
+  editData.rainfall = data.rainfall;
+  editData.air = data.air;
+  editData.water = data.water;
+  shiftShowEdit();
+};
+
+const shiftShowAdd = () => {
   isShow.value = !isShow.value;
 };
+const shiftShowEdit = () => {
+  isShowEdit.value = !isShowEdit.value;
+};
+
 const handleAddByExcel = () => {
   alert("excel上传");
 };
 
-const handleEdit = (index: number, row: Evn) => {
-  console.log(index, row);
+//添加表单数据
+const addData = data => {
+  data.id = tableData.length + 1;
+  tableData.push(data);
 };
-const handleDelete = (index: number, row: Evn) => {
-  console.log(index, row);
+const changeData = data => {
+  tableData.map((item, index) => {
+    if (item.id === data.id) {
+      tableData[index].address = data.address;
+      tableData[index].temp = data.temp;
+      tableData[index].humidity = data.humidity;
+      tableData[index].rainfall = data.rainfall;
+      tableData[index].air = data.air;
+      tableData[index].water = data.water;
+    }
+  });
 };
 
-const tableData: Evn[] = [
+const handleDelete = (index: number, row: User) => {
+  tableData.map((item, index) => {
+    if (item.id === row.id) {
+      tableData.splice(index, 1);
+    }
+  });
+};
+
+const tableData: Evn[] = reactive([
   {
+    id: 1,
     address: "渝北区",
     temp: 30,
     humidity: 59,
@@ -88,6 +145,7 @@ const tableData: Evn[] = [
     water: "优"
   },
   {
+    id: 2,
     address: "渝中区",
     temp: 35,
     humidity: 50,
@@ -96,6 +154,7 @@ const tableData: Evn[] = [
     water: "中度"
   },
   {
+    id: 3,
     address: "巴南区",
     temp: 32,
     humidity: 59,
@@ -103,7 +162,7 @@ const tableData: Evn[] = [
     air: "优",
     water: "优"
   }
-];
+]);
 defineOptions({
   name: "EnvData"
 });

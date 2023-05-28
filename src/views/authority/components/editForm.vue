@@ -17,15 +17,7 @@
           type="password"
           placeholder="Please input password"
           show-password
-          v-model="formLabelAlign.password"
-        />
-      </el-form-item>
-      <el-form-item label="Confirm Pwd">
-        <el-input
-          type="password"
-          placeholder="Please input password again"
-          show-password
-          v-model="formLabelAlign.confirmPwd"
+          v-model="formLabelAlign.pwd"
         />
       </el-form-item>
       <el-form-item label="User Rank">
@@ -42,22 +34,24 @@
     </el-form>
     <div class="bottom">
       <el-button @click="handleCancel()">取消</el-button>
-      <el-button type="primary">确认</el-button>
+      <el-button type="primary" @click="editConfirm">确认</el-button>
     </div>
   </div>
   <div class="mask" v-if="props.isShow" />
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
+import { ref, computed, reactive } from "vue";
 
 const props = defineProps({
   isShow: {
     type: Boolean,
     default: false
-  }
+  },
+  editData: Object
 });
-const emit = defineEmits(["hiden"]);
+
+const emit = defineEmits(["hiden", "editConfirm"]);
 
 const value = ref("");
 const options = [
@@ -72,13 +66,20 @@ const options = [
   }
 ];
 
-const formLabelAlign = reactive({
-  name: "",
-  password: "",
-  confirmPwd: ""
+const formLabelAlign = computed(() => {
+  return reactive({
+    name: props.editData.name,
+    pwd: props.editData.pwd,
+    rank: props.editData.rank
+  });
 });
 
 const handleCancel = () => {
+  emit("hiden", "");
+};
+
+const editConfirm = () => {
+  emit("editConfirm", formLabelAlign);
   emit("hiden", "");
 };
 </script>
@@ -86,27 +87,24 @@ const handleCancel = () => {
 <style lang="scss" scoped>
 .mask {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(221, 221, 221, 0.5);
+  inset: 0;
+  background-color: rgb(221 221 221 / 50%);
 }
 
 .form {
   position: absolute;
-  padding: 30px;
-  min-width: 500px;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #fff;
   z-index: 999;
+  min-width: 500px;
+  padding: 30px;
+  background-color: #fff;
+  transform: translate(-50%, -50%);
 }
 
 .bottom {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
 }
 </style>

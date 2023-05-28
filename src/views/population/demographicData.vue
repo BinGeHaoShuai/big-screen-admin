@@ -2,7 +2,7 @@
   <div>
     <!-- 人口数据：显示城市人口数据，包括人口数量、年龄结构、性别比例、教育程度、就业情况等 -->
     <div class="add-button">
-      <el-button type="primary" @click="handleAdd()">手动添加</el-button>
+      <el-button type="primary" @click="shiftShowAdd()">手动添加</el-button>
       <el-button color="#626aef" plain @click="handleAddByExcel()"
         >excel文件上传</el-button
       >
@@ -43,13 +43,20 @@
       </el-table-column>
     </el-table>
 
-    <add-form :isShow="isShow" @hiden="handleAdd" />
+    <add-person :isShow="isShow" @hiden="shiftShowAdd" @addData="addData" />
+    <edit-person
+      :editData="editData"
+      :isShow="isShowEdit"
+      @hiden="shiftShowEdit"
+      @changeData="changeData"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import addForm from "./components/addForm.vue";
+import { computed, reactive, ref } from "vue";
+import addPerson from "./components/addPerson.vue";
+import editPerson from "./components/editPerson.vue";
 
 interface User {
   name: string;
@@ -70,23 +77,72 @@ const filterTableData = computed(() =>
       data.name.toLowerCase().includes(search.value.toLowerCase())
   )
 );
-//是否显示添加人员表格
+const editData = reactive({
+  name: "",
+  id: "",
+  age: 0,
+  sex: "",
+  education: "",
+  address: "",
+  register: "",
+  career: ""
+});
+
+const handleEdit = (index: number, user: User) => {
+  // console.log(index, user);
+  editData.id = user.id;
+  editData.name = user.name;
+  editData.age = user.age;
+  editData.sex = user.sex;
+  editData.education = user.education;
+  editData.address = user.address;
+  editData.register = user.register;
+  editData.career = user.career;
+  shiftShowEdit();
+};
+
+//是否显示添加表格
 const isShow = ref<boolean>(false);
-const handleAdd = () => {
+const isShowEdit = ref<boolean>(false);
+
+const shiftShowAdd = () => {
   isShow.value = !isShow.value;
 };
+const shiftShowEdit = () => {
+  isShowEdit.value = !isShowEdit.value;
+};
+
 const handleAddByExcel = () => {
   alert("excel上传");
 };
 
-const handleEdit = (index: number, row: User) => {
-  console.log(index, row);
+//添加表单数据
+const addData = data => {
+  data.id = tableData.length + 1;
+  tableData.push(data);
 };
-const handleDelete = (index: number, row: User) => {
-  console.log(index, row);
+const changeData = data => {
+  tableData.map((item, index) => {
+    if (item.id === data.id) {
+      tableData[index].name = data.name;
+      tableData[index].age = data.age;
+      tableData[index].sex = data.sex;
+      tableData[index].education = data.education;
+      tableData[index].address = data.address;
+      tableData[index].register = data.register;
+      tableData[index].career = data.career;
+    }
+  });
 };
 
-const tableData: User[] = [
+const handleDelete = (index: number, row: User) => {
+  tableData.map((item, index) => {
+    if (item.id === row.id) {
+      tableData.splice(index, 1);
+    }
+  });
+};
+const tableData: User[] = reactive([
   {
     name: "廖飞",
     id: "500235199902021052",
@@ -117,7 +173,7 @@ const tableData: User[] = [
     register: "福建省",
     career: "学生"
   }
-];
+]);
 defineOptions({
   name: "PeopleData"
 });
